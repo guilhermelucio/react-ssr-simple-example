@@ -6,9 +6,10 @@ const app = express();
 // Tell express that the public folder is an available directory for the world
 app.use(express.static('public'));
 
-app.get('/', (req, res) => {
+app.get('*', (req, res) => {
     // abstraction (helper) of the React renderer
-    const html = renderer();
+    // the url must be passed, it's gonna be used by the StaticRouter
+    const html = renderer(req);
 
     // Send back the html
     res.send(html);

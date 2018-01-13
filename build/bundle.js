@@ -91,9 +91,10 @@ var app = (0, _express2.default)();
 // Tell express that the public folder is an available directory for the world
 app.use(_express2.default.static('public'));
 
-app.get('/', function (req, res) {
+app.get('*', function (req, res) {
     // abstraction (helper) of the React renderer
-    var html = (0, _renderer2.default)();
+    // the url must be passed, it's gonna be used by the StaticRouter
+    var html = (0, _renderer2.default)(req);
 
     // Send back the html
     res.send(html);
@@ -163,21 +164,69 @@ var _react2 = _interopRequireDefault(_react);
 
 var _server = __webpack_require__(3);
 
-var _Home = __webpack_require__(4);
+var _reactRouterDom = __webpack_require__(6);
 
-var _Home2 = _interopRequireDefault(_Home);
+var _Routes = __webpack_require__(7);
+
+var _Routes2 = _interopRequireDefault(_Routes);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-module.exports = function () {
+module.exports = function (req) {
     // Get the first template string that will be rendered immediately by the user
-    var content = (0, _server.renderToString)(_react2.default.createElement(_Home2.default, null));
+    var content = (0, _server.renderToString)(
+    // The context attribute is required by the StaticRouter, it's use for
+    // redirecting and other process by react-router
+    // The location property expects the current url, but StaticRouter doesn't
+    // know how to fetch the parameters, thus this must be passed down by express
+    _react2.default.createElement(
+        _reactRouterDom.StaticRouter,
+        { location: req.path, context: {} },
+        _react2.default.createElement(_Routes2.default, null)
+    ));
 
     // Append the static raw html to a template string, that will create subsequent requests
     // to start react
     var html = '\n        <html>\n            <head>\n            </head>\n            <body>\n                <div id="app">' + content + '</div>\n                <script src="client.js"></script>\n            </body>\n        </html>\n    ';
 
     return html;
+};
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports) {
+
+module.exports = require("react-router-dom");
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _react = __webpack_require__(0);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactRouterDom = __webpack_require__(6);
+
+var _Home = __webpack_require__(4);
+
+var _Home2 = _interopRequireDefault(_Home);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = function () {
+    return _react2.default.createElement(
+        'div',
+        null,
+        _react2.default.createElement(_reactRouterDom.Route, { exact: true, path: '/', component: _Home2.default })
+    );
 };
 
 /***/ })
