@@ -1,18 +1,7 @@
-const path = require('path');
-
 module.exports = {
-    // Tell webpack what's the root file of the application
-    entry: './src/client/index.js',
-
-    // Tell webpack what's the output folder
-    output: {
-        filename: 'client.js',
-        path: path.resolve(__dirname, 'public')
-    },
-
     module: {
         rules: [
-            // Tell webpack to run babel on .js files
+            // Tell webpack to run babel on every file it runs through
             {
                 test: /\.js?$/,
                 loader: 'babel-loader',
