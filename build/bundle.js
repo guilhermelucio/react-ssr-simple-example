@@ -80,15 +80,9 @@ var _express = __webpack_require__(2);
 
 var _express2 = _interopRequireDefault(_express);
 
-var _react = __webpack_require__(0);
+var _renderer = __webpack_require__(5);
 
-var _react2 = _interopRequireDefault(_react);
-
-var _server = __webpack_require__(3);
-
-var _Home = __webpack_require__(4);
-
-var _Home2 = _interopRequireDefault(_Home);
+var _renderer2 = _interopRequireDefault(_renderer);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -98,12 +92,8 @@ var app = (0, _express2.default)();
 app.use(_express2.default.static('public'));
 
 app.get('/', function (req, res) {
-    // Get the first template string that will be rendered immediately by the user
-    var content = (0, _server.renderToString)(_react2.default.createElement(_Home2.default, null));
-
-    // Append the static raw html to a template string, that will create subsequent requests
-    // to start react
-    var html = '\n        <html>\n            <head>\n            </head>\n            <body>\n                <div id="app">' + content + '</div>\n                <script src="client.js"></script>\n            </body>\n        </html>\n    ';
+    // abstraction (helper) of the React renderer
+    var html = (0, _renderer2.default)();
 
     // Send back the html
     res.send(html);
@@ -159,6 +149,36 @@ var Home = function Home() {
 };
 
 exports.default = Home;
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _react = __webpack_require__(0);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _server = __webpack_require__(3);
+
+var _Home = __webpack_require__(4);
+
+var _Home2 = _interopRequireDefault(_Home);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+module.exports = function () {
+    // Get the first template string that will be rendered immediately by the user
+    var content = (0, _server.renderToString)(_react2.default.createElement(_Home2.default, null));
+
+    // Append the static raw html to a template string, that will create subsequent requests
+    // to start react
+    var html = '\n        <html>\n            <head>\n            </head>\n            <body>\n                <div id="app">' + content + '</div>\n                <script src="client.js"></script>\n            </body>\n        </html>\n    ';
+
+    return html;
+};
 
 /***/ })
 /******/ ]);
