@@ -8,8 +8,11 @@ const mapStateToProps = state => {
 
 // Used by Server Side Rendering to tell which data needs to be loaded
 // for the UsersList component
-export const loadData = () => {
-    console.log('Fetch the users list');
+export const loadData = store => {
+    return store.dispatch(fetchUsers());
 };
 
-export default connect(mapStateToProps, { fetchUsers })(UsersList);
+export default {
+    loadData,
+    component: connect(mapStateToProps, { fetchUsers })(UsersList)
+};

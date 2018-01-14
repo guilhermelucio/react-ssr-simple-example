@@ -140,18 +140,20 @@ app.get('*', function (req, res) {
 
     // Figure it which route the user intends to access
     var matchedRoutes = (0, _reactRouterConfig.matchRoutes)(_Routes2.default, req.path);
-    matchedRoutes.map(function (_ref) {
+    var routePromises = matchedRoutes.map(function (_ref) {
         var route = _ref.route;
 
-        return route.loadData ? route.loadData() : null;
+        return route.loadData ? route.loadData(store) : null;
     });
 
-    // abstraction (helper) of the React renderer
-    // the url must be passed, it's gonna be used by the StaticRouter
-    var html = (0, _renderer2.default)(req, store);
+    Promise.all(routePromises).then(function () {
+        // abstraction (helper) of the React renderer
+        // the url must be passed, it's gonna be used by the StaticRouter
+        var html = (0, _renderer2.default)(req, store);
 
-    // Send back the html
-    res.send(html);
+        // Send back the html
+        res.send(html);
+    });
 });
 
 app.listen(3000, function () {
@@ -174,6 +176,10 @@ module.exports = require("express");
 var _react = __webpack_require__(0);
 
 var _react2 = _interopRequireDefault(_react);
+
+var _serializeJavascript = __webpack_require__(23);
+
+var _serializeJavascript2 = _interopRequireDefault(_serializeJavascript);
 
 var _server = __webpack_require__(8);
 
@@ -212,7 +218,7 @@ module.exports = function (req, store) {
 
     // Append the static raw html to a template string, that will create subsequent requests
     // to start react
-    var html = '\n        <html>\n            <head>\n            </head>\n            <body>\n                <div id="app">' + content + '</div>\n                <script src="client.js"></script>\n            </body>\n        </html>\n    ';
+    var html = '\n        <html>\n            <head>\n            </head>\n            <body>\n                <div id="app">' + content + '</div>\n                <script>\n                    window.INITIAL_STATE = ' + (0, _serializeJavascript2.default)(store.getState()) + '\n                </script>\n                <script src="client.js"></script>\n            </body>\n        </html>\n    ';
 
     return html;
 };
@@ -234,6 +240,8 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _react = __webpack_require__(0);
 
 var _react2 = _interopRequireDefault(_react);
@@ -253,15 +261,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 // When using react-router-config to help working with server side rendering,
 // specially on cases where data needs to be loaded in order to make a component
 // to function properly. JSX routes is not supported when doing this.
-exports.default = [{
+exports.default = [_extends({}, _Home2.default, {
     path: '/',
-    component: _Home2.default,
     exact: true
-}, {
-    loadData: _UsersList.loadData, // used because of the ssr
-    path: '/users',
-    component: _UsersList2.default
-}];
+}), _extends({}, _UsersList2.default, {
+    path: '/users'
+})];
 
 /***/ }),
 /* 10 */
@@ -273,6 +278,7 @@ exports.default = [{
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.Home = undefined;
 
 var _react = __webpack_require__(0);
 
@@ -280,7 +286,7 @@ var _react2 = _interopRequireDefault(_react);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var Home = function Home() {
+var Home = exports.Home = function Home() {
     return _react2.default.createElement(
         'div',
         null,
@@ -296,7 +302,9 @@ var Home = function Home() {
     );
 };
 
-exports.default = Home;
+exports.default = {
+    component: Home
+};
 
 /***/ }),
 /* 11 */
@@ -322,11 +330,14 @@ var mapStateToProps = function mapStateToProps(state) {
 
 // Used by Server Side Rendering to tell which data needs to be loaded
 // for the UsersList component
-var loadData = exports.loadData = function loadData() {
-    console.log('Fetch the users list');
+var loadData = exports.loadData = function loadData(store) {
+    return store.dispatch((0, _actions.fetchUsers)());
 };
 
-exports.default = (0, _reactRedux.connect)(mapStateToProps, { fetchUsers: _actions.fetchUsers })(_UsersList.UsersList);
+exports.default = {
+    loadData: loadData,
+    component: (0, _reactRedux.connect)(mapStateToProps, { fetchUsers: _actions.fetchUsers })(_UsersList.UsersList)
+};
 
 /***/ }),
 /* 12 */
@@ -602,6 +613,12 @@ module.exports = require("babel-polyfill");
 /***/ (function(module, exports) {
 
 module.exports = require("react-router-config");
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports) {
+
+module.exports = require("serialize-javascript");
 
 /***/ })
 /******/ ]);

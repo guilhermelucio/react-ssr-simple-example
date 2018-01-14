@@ -10,7 +10,7 @@ import Routes from './Routes';
 import rootReducer from './reducers';
 
 // createStore(reducer, initialState, middlewares)
-const store = createStore(rootReducer, {}, applyMiddleware(thunk));
+const store = createStore(rootReducer, window.INITIAL_STATE || {}, applyMiddleware(thunk));
 console.log(store);
 // Rendering the app on the client, this will replace the content
 // of the file the server created and React will take care of the application from there

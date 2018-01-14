@@ -1,4 +1,5 @@
 import React from 'react';
+import serialize from 'serialize-javascript';
 import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router-dom';
 import { renderRoutes } from 'react-router-config';
@@ -29,6 +30,9 @@ module.exports = (req, store) => {
             </head>
             <body>
                 <div id="app">${content}</div>
+                <script>
+                    window.INITIAL_STATE = ${serialize(store.getState())}
+                </script>
                 <script src="client.js"></script>
             </body>
         </html>

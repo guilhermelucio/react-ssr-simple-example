@@ -4123,7 +4123,7 @@ var _reducers2 = _interopRequireDefault(_reducers);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 // createStore(reducer, initialState, middlewares)
-var store = (0, _redux.createStore)(_reducers2.default, {}, (0, _redux.applyMiddleware)(_reduxThunk2.default));
+var store = (0, _redux.createStore)(_reducers2.default, window.INITIAL_STATE || {}, (0, _redux.applyMiddleware)(_reduxThunk2.default));
 console.log(store);
 // Rendering the app on the client, this will replace the content
 // of the file the server created and React will take care of the application from there
@@ -28470,6 +28470,8 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _react = __webpack_require__(1);
 
 var _react2 = _interopRequireDefault(_react);
@@ -28489,15 +28491,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 // When using react-router-config to help working with server side rendering,
 // specially on cases where data needs to be loaded in order to make a component
 // to function properly. JSX routes is not supported when doing this.
-exports.default = [{
+exports.default = [_extends({}, _Home2.default, {
     path: '/',
-    component: _Home2.default,
     exact: true
-}, {
-    loadData: _UsersList.loadData, // used because of the ssr
-    path: '/users',
-    component: _UsersList2.default
-}];
+}), _extends({}, _UsersList2.default, {
+    path: '/users'
+})];
 
 /***/ }),
 /* 124 */
@@ -28509,6 +28508,7 @@ exports.default = [{
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.Home = undefined;
 
 var _react = __webpack_require__(1);
 
@@ -28516,7 +28516,7 @@ var _react2 = _interopRequireDefault(_react);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var Home = function Home() {
+var Home = exports.Home = function Home() {
     return _react2.default.createElement(
         'div',
         null,
@@ -28532,7 +28532,9 @@ var Home = function Home() {
     );
 };
 
-exports.default = Home;
+exports.default = {
+    component: Home
+};
 
 /***/ }),
 /* 125 */
@@ -28558,11 +28560,14 @@ var mapStateToProps = function mapStateToProps(state) {
 
 // Used by Server Side Rendering to tell which data needs to be loaded
 // for the UsersList component
-var loadData = exports.loadData = function loadData() {
-    console.log('Fetch the users list');
+var loadData = exports.loadData = function loadData(store) {
+    return store.dispatch((0, _actions.fetchUsers)());
 };
 
-exports.default = (0, _reactRedux.connect)(mapStateToProps, { fetchUsers: _actions.fetchUsers })(_UsersList.UsersList);
+exports.default = {
+    loadData: loadData,
+    component: (0, _reactRedux.connect)(mapStateToProps, { fetchUsers: _actions.fetchUsers })(_UsersList.UsersList)
+};
 
 /***/ }),
 /* 126 */

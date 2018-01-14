@@ -17,16 +17,19 @@ app.get('*', (req, res) => {
 
     // Figure it which route the user intends to access
     const matchedRoutes = matchRoutes(Routes, req.path);
-    matchedRoutes.map(({ route }) => {
-        return route.loadData ? route.loadData() : null;
+    const routePromises = matchedRoutes.map(({ route }) => {
+        return route.loadData ? route.loadData(store) : null;
     });
 
-    // abstraction (helper) of the React renderer
-    // the url must be passed, it's gonna be used by the StaticRouter
-    const html = renderer(req, store);
+    Promise.all(routePromises).then(() => {
+        // abstraction (helper) of the React renderer
+        // the url must be passed, it's gonna be used by the StaticRouter
+        const html = renderer(req, store);
+    
+        // Send back the html
+        res.send(html);
+    });
 
-    // Send back the html
-    res.send(html);
 });
 
 app.listen(3000, () => {
