@@ -1,3 +1,3 @@
 export * from './types';
 
-export const API = 'https://react-ssr-api.herokuapp.com';
+export const API = 'http://react-ssr-api.herokuapp.com';

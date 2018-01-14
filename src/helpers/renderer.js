@@ -27,6 +27,7 @@ module.exports = (req, store) => {
     const html = `
         <html>
             <head>
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
             </head>
             <body>
                 <div id="app">${content}</div>

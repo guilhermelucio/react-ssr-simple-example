@@ -4082,6 +4082,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 var FETCH_USERS = exports.FETCH_USERS = 'app/users/FETCH';
+var FETCH_CURRENT_USER = exports.FETCH_CURRENT_USER = 'app/users/FETCH_CURRENT_USER';
 
 /***/ }),
 /* 57 */
@@ -28492,6 +28493,10 @@ var _react2 = _interopRequireDefault(_react);
 
 var _reactRouterDom = __webpack_require__(37);
 
+var _App = __webpack_require__(488);
+
+var _App2 = _interopRequireDefault(_App);
+
 var _Home = __webpack_require__(124);
 
 var _Home2 = _interopRequireDefault(_Home);
@@ -28505,11 +28510,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 // When using react-router-config to help working with server side rendering,
 // specially on cases where data needs to be loaded in order to make a component
 // to function properly. JSX routes is not supported when doing this.
-exports.default = [_extends({}, _Home2.default, {
-    path: '/',
-    exact: true
-}), _extends({}, _UsersList2.default, {
-    path: '/users'
+exports.default = [_extends({}, _App2.default, {
+    routes: [_extends({}, _Home2.default, {
+        path: '/',
+        exact: true
+    }), _extends({}, _UsersList2.default, {
+        path: '/users'
+    })]
 })];
 
 /***/ }),
@@ -28533,15 +28540,16 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var Home = exports.Home = function Home() {
     return _react2.default.createElement(
         'div',
-        null,
-        'I\'m the home component!!! ',
-        _react2.default.createElement('br', null),
+        { className: 'center-align', style: { marginTop: '200px' } },
         _react2.default.createElement(
-            'button',
-            { onClick: function onClick() {
-                    return console.log('clicked');
-                } },
-            'Click me'
+            'h3',
+            null,
+            'Welcome!!!'
+        ),
+        _react2.default.createElement(
+            'p',
+            null,
+            'Check out these awesome features'
         )
     );
 };
@@ -28688,7 +28696,7 @@ Object.keys(_users).forEach(function (key) {
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.fetchUsers = undefined;
+exports.fetchCurrentUser = exports.fetchUsers = undefined;
 
 var _constants = __webpack_require__(148);
 
@@ -28723,6 +28731,39 @@ var fetchUsers = exports.fetchUsers = function fetchUsers() {
 
         return function (_x, _x2, _x3) {
             return _ref.apply(this, arguments);
+        };
+    }();
+};
+
+var fetchCurrentUser = exports.fetchCurrentUser = function fetchCurrentUser() {
+    return function () {
+        var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(dispatch, getState, api) {
+            var res;
+            return regeneratorRuntime.wrap(function _callee2$(_context2) {
+                while (1) {
+                    switch (_context2.prev = _context2.next) {
+                        case 0:
+                            _context2.next = 2;
+                            return api.get('/current_user');
+
+                        case 2:
+                            res = _context2.sent;
+
+                            dispatch({
+                                type: _constants.FETCH_CURRENT_USER,
+                                payload: res.data
+                            });
+
+                        case 4:
+                        case 'end':
+                            return _context2.stop();
+                    }
+                }
+            }, _callee2, undefined);
+        }));
+
+        return function (_x4, _x5, _x6) {
+            return _ref2.apply(this, arguments);
         };
     }();
 };
@@ -29623,7 +29664,7 @@ Object.keys(_types).forEach(function (key) {
     }
   });
 });
-var API = exports.API = 'https://react-ssr-api.herokuapp.com';
+var API = exports.API = 'http://react-ssr-api.herokuapp.com';
 
 /***/ }),
 /* 149 */
@@ -29642,10 +29683,15 @@ var _users = __webpack_require__(150);
 
 var _users2 = _interopRequireDefault(_users);
 
+var _auth = __webpack_require__(487);
+
+var _auth2 = _interopRequireDefault(_auth);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = (0, _redux.combineReducers)({
-    users: _users2.default
+    users: _users2.default,
+    auth: _auth2.default
 });
 
 /***/ }),
@@ -39154,6 +39200,178 @@ Route.childContextTypes = {
   router: _propTypes2.default.object.isRequired
 };
 exports.default = Route;
+
+/***/ }),
+/* 484 */,
+/* 485 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.App = undefined;
+
+var _react = __webpack_require__(1);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactRouterConfig = __webpack_require__(478);
+
+var _header = __webpack_require__(486);
+
+var _header2 = _interopRequireDefault(_header);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// route is the object matched by the route config at the Routes file
+var App = exports.App = function App(_ref) {
+    var route = _ref.route,
+        auth = _ref.auth;
+
+    return _react2.default.createElement(
+        'div',
+        null,
+        _react2.default.createElement(_header2.default, { auth: auth }),
+        (0, _reactRouterConfig.renderRoutes)(route.routes)
+    );
+};
+
+exports.default = App;
+
+/***/ }),
+/* 486 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _react = __webpack_require__(1);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactRouterDom = __webpack_require__(37);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = function (_ref) {
+    var auth = _ref.auth;
+
+    var authButton = auth ? _react2.default.createElement(
+        'a',
+        { href: '/api/logout' },
+        'Logout'
+    ) : _react2.default.createElement(
+        'a',
+        { href: '/api/auth/google' },
+        'Login'
+    );
+
+    return _react2.default.createElement(
+        'nav',
+        null,
+        _react2.default.createElement(
+            'div',
+            { className: 'nav-wrapper' },
+            _react2.default.createElement(
+                _reactRouterDom.Link,
+                { className: 'brand-logo', to: '/' },
+                'React SSR'
+            ),
+            _react2.default.createElement(
+                'ul',
+                { className: 'right' },
+                _react2.default.createElement(
+                    'li',
+                    null,
+                    _react2.default.createElement(
+                        _reactRouterDom.Link,
+                        { to: '/users' },
+                        'Users'
+                    )
+                ),
+                _react2.default.createElement(
+                    'li',
+                    null,
+                    _react2.default.createElement(
+                        _reactRouterDom.Link,
+                        { to: '/admins' },
+                        'Admins'
+                    )
+                ),
+                _react2.default.createElement(
+                    'li',
+                    null,
+                    authButton
+                )
+            )
+        )
+    );
+};
+
+/***/ }),
+/* 487 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function () {
+    var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+    var action = arguments[1];
+
+    switch (action.type) {
+        case _constants.FETCH_CURRENT_USER:
+            return action.payload || false;
+        default:
+            return state;
+    }
+};
+
+var _constants = __webpack_require__(148);
+
+/***/ }),
+/* 488 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.loadData = undefined;
+
+var _reactRedux = __webpack_require__(46);
+
+var _actions = __webpack_require__(127);
+
+var _App = __webpack_require__(485);
+
+var loadData = exports.loadData = function loadData(store) {
+    return store.dispatch((0, _actions.fetchCurrentUser)());
+};
+
+var mapStateToProps = function mapStateToProps(_ref) {
+    var auth = _ref.auth;
+
+    return { auth: auth };
+};
+
+exports.default = {
+    component: (0, _reactRedux.connect)(mapStateToProps, null)(_App.App),
+    loadData: loadData
+};
 
 /***/ })
 /******/ ]);

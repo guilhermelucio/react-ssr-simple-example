@@ -1,5 +1,6 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
+import App from './components/app/App.container';
 import Home from './components/Home';
 import UsersList from './components/users/UsersList.container';
 
@@ -8,12 +9,17 @@ import UsersList from './components/users/UsersList.container';
 // to function properly. JSX routes is not supported when doing this.
 export default [
     {
-        ...Home,
-        path: '/',
-        exact: true
-    },
-    {
-        ...UsersList,
-        path: '/users'
+        ...App,
+        routes: [
+            {
+                ...Home,
+                path: '/',
+                exact: true
+            },
+            {
+                ...UsersList,
+                path: '/users'
+            }
+        ]
     }
 ];
