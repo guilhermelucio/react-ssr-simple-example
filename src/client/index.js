@@ -1,14 +1,17 @@
+import 'babel-polyfill';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { createStore, applyMiddleware } from 'redux';
 import { BrowserRouter } from 'react-router-dom';
+import { renderRoutes } from 'react-router-config';
 import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
 import Routes from './Routes';
 import rootReducer from './reducers';
 
-const store = createStore(reducers, {}, applyMiddleware(thunk));
-
+// createStore(reducer, initialState, middlewares)
+const store = createStore(rootReducer, {}, applyMiddleware(thunk));
+console.log(store);
 // Rendering the app on the client, this will replace the content
 // of the file the server created and React will take care of the application from there
 
@@ -21,7 +24,9 @@ const store = createStore(reducers, {}, applyMiddleware(thunk));
 ReactDOM.hydrate(
     <Provider store={store}>
         <BrowserRouter>
-            <Routes />
+            <div>
+                { renderRoutes(Routes) }
+            </div>
         </BrowserRouter>
     </Provider>,
     document.querySelector('#app')
