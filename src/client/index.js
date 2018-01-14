@@ -6,12 +6,26 @@ import { BrowserRouter } from 'react-router-dom';
 import { renderRoutes } from 'react-router-config';
 import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
+import axios from 'axios';
 import Routes from './Routes';
 import rootReducer from './reducers';
 
+// Creating a custom instance of access
+// axios will then send request to the app server
+const axiosInstance = axios.create({
+    baseURL: '/api'
+});
+
 // createStore(reducer, initialState, middlewares)
-const store = createStore(rootReducer, window.INITIAL_STATE || {}, applyMiddleware(thunk));
-console.log(store);
+const store = createStore(
+    rootReducer,
+    window.INITIAL_STATE || {},
+    // Creating a custom instance of redux thunk passing an extra argument
+    // necessary because two different configurations need to happen by the
+    // browser and the server using axios.
+    applyMiddleware(thunk.withExtraArgument(axiosInstance))
+);
+
 // Rendering the app on the client, this will replace the content
 // of the file the server created and React will take care of the application from there
 

@@ -112,6 +112,10 @@ var _express = __webpack_require__(6);
 
 var _express2 = _interopRequireDefault(_express);
 
+var _expressHttpProxy = __webpack_require__(24);
+
+var _expressHttpProxy2 = _interopRequireDefault(_expressHttpProxy);
+
 var _reactRouterConfig = __webpack_require__(22);
 
 var _Routes = __webpack_require__(9);
@@ -122,6 +126,8 @@ var _renderer = __webpack_require__(7);
 
 var _renderer2 = _interopRequireDefault(_renderer);
 
+var _constants = __webpack_require__(16);
+
 var _createStore = __webpack_require__(17);
 
 var _createStore2 = _interopRequireDefault(_createStore);
@@ -130,13 +136,24 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var app = (0, _express2.default)();
 
+// Proxy any attempt to /api
+// This is gonna be used to make authenticated requests from both, browser and the server
+// using the authentication stored on the cookies
+app.use('/api', (0, _expressHttpProxy2.default)(_constants.API, {
+    proxyReqOptDecorator: function proxyReqOptDecorator(options) {
+        // this project specific configuration
+        options.headers['x-forwarded-host'] = 'localhost:3000';
+        return options;
+    }
+}));
+
 // Tell express that the public folder is an available directory for the world
 app.use(_express2.default.static('public'));
 
 app.get('*', function (req, res) {
     // The store will be executed here because the goal is to load
     // data much earlier than when the response is being sent
-    var store = (0, _createStore2.default)();
+    var store = (0, _createStore2.default)(req);
 
     // Figure it which route the user intends to access
     var matchedRoutes = (0, _reactRouterConfig.matchRoutes)(_Routes2.default, req.path);
@@ -446,26 +463,20 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.fetchUsers = undefined;
 
-var _axios = __webpack_require__(15);
-
-var _axios2 = _interopRequireDefault(_axios);
-
 var _constants = __webpack_require__(16);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
 var fetchUsers = exports.fetchUsers = function fetchUsers() {
     return function () {
-        var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(dispatch) {
+        var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(dispatch, getState, api) {
             var res;
             return regeneratorRuntime.wrap(function _callee$(_context) {
                 while (1) {
                     switch (_context.prev = _context.next) {
                         case 0:
                             _context.next = 2;
-                            return _axios2.default.get(_constants.API + '/users');
+                            return api.get('/users');
 
                         case 2:
                             res = _context.sent;
@@ -483,7 +494,7 @@ var fetchUsers = exports.fetchUsers = function fetchUsers() {
             }, _callee, undefined);
         }));
 
-        return function (_x) {
+        return function (_x, _x2, _x3) {
             return _ref.apply(this, arguments);
         };
     }();
@@ -536,15 +547,30 @@ var _reduxThunk = __webpack_require__(18);
 
 var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
 
+var _axios = __webpack_require__(15);
+
+var _axios2 = _interopRequireDefault(_axios);
+
 var _reducers = __webpack_require__(19);
 
 var _reducers2 = _interopRequireDefault(_reducers);
 
+var _index = __webpack_require__(16);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-exports.default = function () {
-    // createStore(reducer, initialState, middlewares)
-    var store = (0, _redux.createStore)(_reducers2.default, {}, (0, _redux.applyMiddleware)(_reduxThunk2.default));
+exports.default = function (req) {
+    // axios configuration to send requests from the server and
+    // on the clients behalf, serving as a proxy
+    var axiosInstance = _axios2.default.create({
+        baseURL: _index.API,
+        headers: {
+            cookie: req.get('cookie') || '' // pass the cookie coming from the client
+        }
+    });
+
+    // function createStore: object (reducer, initialState, middlewares)
+    var store = (0, _redux.createStore)(_reducers2.default, {}, (0, _redux.applyMiddleware)(_reduxThunk2.default.withExtraArgument(axiosInstance)));
     return store;
 };
 
@@ -619,6 +645,12 @@ module.exports = require("react-router-config");
 /***/ (function(module, exports) {
 
 module.exports = require("serialize-javascript");
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports) {
+
+module.exports = require("express-http-proxy");
 
 /***/ })
 /******/ ]);
